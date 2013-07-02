@@ -1,0 +1,61 @@
+--- Trinity.pl.old	2013-07-02 13:06:59.632360920 -0400
++++ Trinity.pl	2013-07-02 13:14:37.689138521 -0400
+@@ -17,6 +17,11 @@
+ 
+ open (STDERR, ">&STDOUT");  ## capturing stderr and stdout in a single stdout stream
+ 
++##################################################
++# keep track of the time alloted to run the script
++##################################################
++
++my $total_time_to_run = 0;
+ 
+ # Site specific setup
+ 
+@@ -1029,6 +1034,7 @@
+         $collectl_titlename = "${VERSION} ${CPU} @{left_files}@{single_files}";
+         &process_cmd("$COLLECTL_DIR/plot.sh \"$collectl_titlename\" ${CPU}");
+     }
++    print "CMD: TOTAL TIME: " . $total_time_to_run;
+     exit(0);
+ }
+ 
+@@ -1464,9 +1470,17 @@
+ 
+ ####
+ sub process_cmd {
++
++    # this function has been edited!
++    # the edits are to make finding the resulting time of the commands easier.
++
++    # the functino also increments a global variable to track the total time
++    # needed to run all commands.
++
+     my ($cmd) = @_;
+ 
+-    print "CMD: $cmd\n";
++    # changed command printing -- see below
++    # print "CMD: $cmd\n";
+ 
+     my $start_time = time();
+     my $ret = system($cmd);
+@@ -1475,8 +1489,17 @@
+     if ($ret) {
+         die "Error, cmd: $cmd died with ret $ret";
+     }
+-    
+-    print "CMD finished (" . ($end_time - $start_time) . " seconds)\n";    
++
++    # changed command printing -- see below
++    # print "CMD finished (" . ($end_time - $start_time) . " seconds)\n";    
++
++    ##############################################################################
++    # printing out the time it took to run the command in an easier format to grep
++    ##############################################################################
++    print "CMD: " . $cmd . " (" . ($end_time - $start_time) . "s)\n";
++
++    # increase the total time taken to run the application
++    $total_time_to_run = ($end_time - $start_time) + $total_time_to_run;
+ 
+     return;
+ }
